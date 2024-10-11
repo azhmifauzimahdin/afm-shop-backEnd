@@ -5,7 +5,10 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('login', [LoginController::class, 'login'])->name('login');
+Route::controller(LoginController::class)->group(function () {
+    Route::post('login', 'login')->name('login');
+    Route::post('login-google', 'loginGoogle')->name('login.google');
+});
 Route::post('register', [RegisterController::class, 'register'])->name('register');
 Route::controller(ForgotPasswordController::class)->group(function () {
     Route::post('forget-password', 'forgetPassword')->name('password.forget');

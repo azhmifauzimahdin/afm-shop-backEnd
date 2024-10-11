@@ -45,7 +45,7 @@ class ForgotPasswordController extends BaseController
             'email' => $validateData['email'],
             'otp' => $validateData['otp']
         ];
-        // $this->sendOtp($data);
+        $this->sendOtp($data);
 
         return $this->sendResponse('Kode verifikasi berhasil dikirim', ["email" => $data["email"]]);
     }
@@ -71,7 +71,7 @@ class ForgotPasswordController extends BaseController
                 'email' => $validateData['email'],
                 'otp' => $validateData['otp']
             ];
-            // $this->sendOtp($data);
+            $this->sendOtp($data);
 
             return $this->sendResponse('Kode verifikasi berhasil dikirim ulang', ['email' => $data['email']]);
         }

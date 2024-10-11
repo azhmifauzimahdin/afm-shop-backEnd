@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Str;
 
 class LoginController extends BaseController
 {
@@ -62,5 +65,45 @@ class LoginController extends BaseController
         if ($removeToken) {
             return $this->sendResponse('Berhasil logout');
         }
+    }
+
+    public function loginGoogle(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required'],
+            'email' => ['email', 'email:dns'],
+            'name' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Kesalahan validasi', $validator->errors());
+        }
+
+        $validateData = $validator->valid();
+        $user = User::where('email', $validateData['email'])->first();
+        if (!$user) {
+            $user = User::create([
+                'name' => $validateData['name'],
+                'email' => $validateData['email'],
+                'password' => Hash::make(Str::password(16, true, true, false, false)),
+                'birthday' => null,
+                'image' => null,
+                'gauth_id' => $validateData['id'],
+                'gauth_type' => 'Google',
+            ]);
+        }
+
+        $token = Auth::guard('api')->login($user);
+        $success['authorization'] = [
+            'token' => $token,
+            'type' => 'Bearer',
+        ];
+        $success['user'] = $user;
+
+        if ($user) {
+            return $this->sendResponse('Berhasil login', $success);
+        }
+
+        return $this->sendFail();
     }
 }
