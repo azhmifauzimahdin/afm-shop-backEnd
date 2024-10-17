@@ -81,4 +81,14 @@ class User extends Authenticatable implements JWTSubject
             }
         );
     }
+
+    protected function image(): Attribute
+    {
+        return Attribute::make(get: function ($value) {
+            if (!is_null($value)) {
+                return asset('storage/images/users/' . $value);
+            }
+            return $value;
+        });
+    }
 }

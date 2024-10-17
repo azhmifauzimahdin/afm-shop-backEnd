@@ -22,7 +22,7 @@ class LoginController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Kesalahan validasi', $validator->errors());
+            return $this->sendError('Kesalahan validasi', $validator->errors(), 400);
         }
 
         $credentials = $request->only('email', 'password');
@@ -76,7 +76,7 @@ class LoginController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Kesalahan validasi', $validator->errors());
+            return $this->sendError('Kesalahan validasi', $validator->errors(), 400);
         }
 
         $validateData = $validator->valid();

@@ -191,10 +191,11 @@ return [
     'attributes' => [
         'name' => 'Nama',
         'email' => 'Email',
-        'password' => 'Kata Sandi',
-        'password_confirmation' => 'Konfirmasi Kata Sandi',
+        'password' => 'Kata sandi',
+        'password_confirmation' => 'Konfirmasi Kata sandi',
         'birthday' => 'Tanggal lahir',
         'otp' => 'Kode verifikasi',
+        'old_password' => 'Kata sandi lama'
 
     ],
 

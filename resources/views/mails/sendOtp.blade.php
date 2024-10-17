@@ -7,8 +7,9 @@
 Sedikit lagi akunmu akan aktif. Cukup masukkan kode verifikasi di bawah untuk mengaktifkan akunmu.
 @elseif ($mailData['type'] == 'resetPassword')
 Masukkan kode berikut untuk melakukan perubahan kata sandi.
+@elseif ($mailData['type'] == 'verification')
+Masukkan kode verifikasi di bawah.
 @endif
-
 
 <div style="text-align: center; font-size: 1.25rem; font-weight: bold; margin-bottom: 0.8rem;">{{ $mailData['otp'] }}</div>
 

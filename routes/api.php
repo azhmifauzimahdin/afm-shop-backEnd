@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group(function () {
@@ -27,7 +28,15 @@ Route::controller(RegisterController::class)->group(function () {
 Route::controller(LoginController::class)->middleware('auth:api')->group(function () {
     Route::get('me', 'me')->name('me');
     Route::post('refresh', 'refresh')->name('refresh');
-    Route::post('logout', 'logout')->name('register');
+    Route::post('logout', 'logout')->name('logout');
+    Route::controller(UserController::class)->group(function () {
+        Route::put('user', 'updateUser')->name('update.user');
+        Route::put('user/email', 'updateEmail')->name('update.user.email');
+        Route::put('user/resend-otp', 'resendOtp')->name('update.user.resendOtp');
+        Route::put('user/verifikasi-otp', 'verifikasiOtp')->name('update.user.verifikasiOtp');
+        Route::put('user/change-password', 'changePassword')->name('update.user.changePassword');
+    });
 });
+
 
 require __DIR__ . '/admin.php';

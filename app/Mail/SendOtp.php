@@ -38,6 +38,11 @@ class SendOtp extends Mailable
                     subject: 'Kode Verifikasi untuk Atur Ulang Kata Sandi',
                 );
                 break;
+            case 'verification':
+                return new Envelope(
+                    subject: 'Kode Verifikasi',
+                );
+                break;
         }
     }
 

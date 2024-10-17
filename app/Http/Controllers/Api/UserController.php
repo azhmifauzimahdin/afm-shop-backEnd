@@ -10,16 +10,22 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
-class ForgotPasswordController extends BaseController
+class UserController extends BaseController
 {
-    public function forgetPassword(Request $request): JsonResponse
+    public function updateUser(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => ['email', 'email:dns'],
+            'name' => ['required'],
+            'gender' => [Rule::in(['male', 'female'])],
+            'birthday' => ['date', 'before_or_equal:now', 'nullable'],
+            'image' => ['image', 'mimes:jpg,jpeg,png', 'max:1000']
         ]);
 
         if ($validator->fails()) {
@@ -27,11 +33,38 @@ class ForgotPasswordController extends BaseController
         }
 
         $validateData = $validator->valid();
-        $user = User::where('email', $validateData['email'])->first();
-        if (!$user) {
-            return $this->sendError('Kesalahan validasi', ["email" => ["Kami tidak dapat menemukan pengguna dengan alamat email tersebut."]], 400);
+        $user = User::find(Auth::user()->id);
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $path = $image->store('images/users/', 'public');
+            if ($user->image) {
+                $userImage = explode("/", $user->image);
+                $file_path = public_path('storage/images/users/' . end($userImage));
+                if (File::exists($file_path)) {
+                    File::delete($file_path);
+                }
+            }
+            $validateData['image'] = basename($path);
+            $user->update($validateData);
+        } else {
+            $user->update($validateData);
         }
 
+        $success['user'] = $user;
+        return $this->sendResponse('Berhasil ubah profil', $success);
+    }
+
+    public function updateEmail(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email:dns']
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Kesalahan validasi', $validator->errors(), 400);
+        }
+
+        $validateData = $validator->valid();
         $validateData['otp'] = rand(123456, 999999);
         $validateData['expired_at'] = Carbon::now()->addMinutes(10);
         $otp = Otp::find($validateData['email']);
@@ -47,13 +80,13 @@ class ForgotPasswordController extends BaseController
         ];
         $this->sendOtp($data);
 
-        return $this->sendResponse('Kode verifikasi berhasil dikirim', ["email" => $data["email"]]);
+        return $this->sendResponse('Kode verifikasi berhasil dikirim', ['email' => $data['email']]);
     }
 
     public function resendOtp(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => ['required']
+            'email' => ['required', 'email:dns']
         ]);
 
         if ($validator->fails()) {
@@ -79,7 +112,7 @@ class ForgotPasswordController extends BaseController
         return $this->sendError('Email tidak ditemukan', ["email" => $validateData["email"]]);
     }
 
-    public function otpVerification(Request $request): JsonResponse
+    public function verifikasiOtp(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'email' => ['required'],
@@ -99,17 +132,31 @@ class ForgotPasswordController extends BaseController
             } elseif ($otp->otp == $validateData['otp'] && $now->isAfter($otp->expired_at)) {
                 return $this->sendError('Kelasahan verifikasi otp.', ['otp' => ['Kode verifikasi telah kadaluarsa.']]);
             }
-            return $this->sendResponse('Kode verifikasi sesuai', ['email' => $validateData['email']]);
+        } else {
+            return $this->sendError('Email tidak ditemukan', ["email" => $validateData["email"]]);
         }
 
-        return $this->sendError('Email tidak ditemukan', ["email" => $validateData["email"]]);
+        $user = User::find(Auth::user()->id);
+        $user->update([
+            'email' => $validateData['email']
+        ]);
+        Otp::find($validateData['email'])->delete();
+        $success['user'] = $user;
+        return $this->sendResponse('Berhasil ubah email', $success);
     }
 
-    public function resetPassword(Request $request): JsonResponse
+    private function sendOtp($data)
     {
+        $mailData = [
+            'otp' => $data['otp'],
+            'type' => 'verification'
+        ];
+        return Mail::to($data['email'])->queue(new SendOtp($mailData));
+    }
+
+    public function changePassword(Request $request): JsonResponse{
         $validator = Validator::make($request->all(), [
-            'email' => ['email', 'email:dns'],
-            'otp' => ['required'],
+            'old_password' => ['required'],
             'password' => ['required', 'confirmed', Password::min(6)->letters()->mixedCase()->numbers()->symbols()]
         ]);
 
@@ -118,46 +165,20 @@ class ForgotPasswordController extends BaseController
         }
 
         $validateData = $validator->valid();
-        $otp = Otp::find($validateData['email']);
-        if ($otp) {
-            if ($otp->otp != $validateData['otp']) {
-                return $this->sendError('Kelasahan verifikasi otp', ['otp' => ['Kode verifikasi tidak sesuai']]);
+        $user = User::find(Auth::user()->id);
+        if($user){
+            if (Hash::check($validateData['old_password'], $user->password)) {
+                $user->update([
+                    'password' => $validateData['password']
+                ]);
+            }else{
+                return $this->sendError('Kesalahan validasi', ["password" => ["Kata sandi lama tidak sesuai"]], 400);
             }
-        } else {
-            return $this->sendError('Kode verifikasi tidak ditemukan', ["email" => $validateData["email"]]);
+        }else{
+            return $this->sendError('User tidak ditemukan', ["errors" => ["User tidak ditemukan"]]);
         }
 
-        $user = User::where('email', $validateData['email'])->first();
-        if (!$user) {
-            return $this->sendError('Kesalahan validasi', ["email" => "Kami tidak dapat menemukan pengguna dengan alamat email tersebut."]);
-        }
-
-        $user->update([
-            'password' => $validateData["password"]
-        ]);
-
-        Otp::find($validateData['email'])->delete();
-
-        $token = Auth::guard('api')->login($user);
-        $success['authorization'] = [
-            'token' => $token,
-            'type' => 'Bearer',
-        ];
         $success['user'] = $user;
-
-        if ($user) {
-            return $this->sendResponse('Berhasil ganti kata sandi', $success);
-        }
-
-        return $this->sendFail();
-    }
-
-    private function sendOtp($data)
-    {
-        $mailData = [
-            'otp' => $data['otp'],
-            'type' => 'resetPassword'
-        ];
-        return Mail::to($data['email'])->queue(new SendOtp($mailData));
+        return $this->sendResponse('Berhasil ubah kata sandi', $success);
     }
 }

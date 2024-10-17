@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('image')->nullable();
             $table->timestamp('birthday')->nullable();
+            $table->string('gender')->nullable();
             $table->string('gauth_id')->nullable();
             $table->string('gauth_type')->nullable();
             $table->rememberToken();
