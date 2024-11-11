@@ -21,7 +21,10 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array<int, string>
      */
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $guarded = ['id'];
+    protected $appends = ['image_url'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -82,13 +85,13 @@ class User extends Authenticatable implements JWTSubject
         );
     }
 
-    protected function image(): Attribute
+    protected function imageUrl(): Attribute
     {
-        return Attribute::make(get: function ($value) {
-            if (!is_null($value)) {
-                return asset('storage/images/users/' . $value);
+        return Attribute::make(get: function () {
+            if (!is_null($this->image)) {
+                return asset('storage/images/users/' . $this->image);
             }
-            return $value;
+            return $this->image;
         });
     }
 }

@@ -34,20 +34,23 @@ class UserController extends BaseController
 
         $validateData = $validator->valid();
         $user = User::find(Auth::user()->id);
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $path = $image->store('images/users/', 'public');
-            if ($user->image) {
-                $userImage = explode("/", $user->image);
-                $file_path = public_path('storage/images/users/' . end($userImage));
-                if (File::exists($file_path)) {
-                    File::delete($file_path);
+        if ($user) {
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $path = $image->store('images/users/', 'public');
+                if ($user->image) {
+                    $file_path = public_path('storage/images/users/' . $user->image);
+                    if (File::exists($file_path)) {
+                        File::delete($file_path);
+                    }
                 }
+                $validateData['image'] = basename($path);
+                $user->update($validateData);
+            } else {
+                $user->update($validateData);
             }
-            $validateData['image'] = basename($path);
-            $user->update($validateData);
         } else {
-            $user->update($validateData);
+            return $this->sendError('User tidak ditemukan');
         }
 
         $success['user'] = $user;
@@ -154,7 +157,8 @@ class UserController extends BaseController
         return Mail::to($data['email'])->queue(new SendOtp($mailData));
     }
 
-    public function changePassword(Request $request): JsonResponse{
+    public function changePassword(Request $request): JsonResponse
+    {
         $validator = Validator::make($request->all(), [
             'old_password' => ['required'],
             'password' => ['required', 'confirmed', Password::min(6)->letters()->mixedCase()->numbers()->symbols()]
@@ -166,15 +170,15 @@ class UserController extends BaseController
 
         $validateData = $validator->valid();
         $user = User::find(Auth::user()->id);
-        if($user){
+        if ($user) {
             if (Hash::check($validateData['old_password'], $user->password)) {
                 $user->update([
                     'password' => $validateData['password']
                 ]);
-            }else{
+            } else {
                 return $this->sendError('Kesalahan validasi', ["password" => ["Kata sandi lama tidak sesuai"]], 400);
             }
-        }else{
+        } else {
             return $this->sendError('User tidak ditemukan', ["errors" => ["User tidak ditemukan"]]);
         }
 

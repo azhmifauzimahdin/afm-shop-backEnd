@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group(function () {
@@ -25,10 +26,17 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('register/create-account', 'createAccount')->name('register.createAccount');
 });
 
-Route::controller(LoginController::class)->middleware('auth:api')->group(function () {
-    Route::get('me', 'me')->name('me');
-    Route::post('refresh', 'refresh')->name('refresh');
-    Route::post('logout', 'logout')->name('logout');
+Route::controller(ProductController::class)->group(function () {
+    Route::get('products', 'getAll')->name('products');
+    Route::get('products/{id}', 'show')->name('products.show');
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::controller(LoginController::class)->group(function () {
+        Route::get('me', 'me')->name('me');
+        Route::post('refresh', 'refresh')->name('refresh');
+        Route::post('logout', 'logout')->name('logout');
+    });
     Route::controller(UserController::class)->group(function () {
         Route::put('user', 'updateUser')->name('update.user');
         Route::put('user/email', 'updateEmail')->name('update.user.email');
@@ -38,5 +46,6 @@ Route::controller(LoginController::class)->middleware('auth:api')->group(functio
     });
 });
 
+Route::resource('temps', ProductController::class);
 
 require __DIR__ . '/admin.php';

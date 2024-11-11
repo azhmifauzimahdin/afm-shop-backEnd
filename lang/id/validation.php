@@ -195,8 +195,14 @@ return [
         'password_confirmation' => 'Konfirmasi Kata sandi',
         'birthday' => 'Tanggal lahir',
         'otp' => 'Kode verifikasi',
-        'old_password' => 'Kata sandi lama'
-
+        'old_password' => 'Kata sandi lama',
+        'image' => 'Foto',
+        'images' => 'Foto',
+        'title' => 'Nama',
+        'description' => 'Deskripsi',
+        'price' => 'Harga',
+        'discount' => 'Diskon',
+        'product_id' => 'ID produk'
     ],
 
 ];
