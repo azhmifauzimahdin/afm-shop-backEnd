@@ -202,7 +202,10 @@ return [
         'description' => 'Deskripsi',
         'price' => 'Harga',
         'discount' => 'Diskon',
-        'product_id' => 'ID produk'
+        'product_id' => 'ID produk',
+        'review' => 'Ulasan',
+        'rating' => 'Rating',
+        'title' => 'Judul'
     ],
 
 ];

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\BaseController;
 use App\Models\Image;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +23,7 @@ class ProductController extends BaseController
             'title' => ['required', 'string'],
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric'],
-            'discount' => ['numeric', 'max:100'],
+            'discount' => ['numeric', 'min:0', 'max:100'],
             'images' => ['array'],
             'images.*' => ['image', 'mimes:jpg,jpeg,png', 'max:1000'],
         ]);
@@ -40,7 +41,7 @@ class ProductController extends BaseController
                 $images = [];
                 foreach ($request->file('images') as $image) {
                     $path = $image->store('images/products/', 'public');
-                    $images[] = ['product_id' => $product['id'], 'name' => basename($path), 'size' => $image->getSize()];
+                    $images[] = ['product_id' => $product['id'], 'title' => $image->getClientOriginalName(), 'name' => basename($path), 'size' => $image->getSize()];
                 }
 
                 foreach ($images as $imageData) {
@@ -66,7 +67,7 @@ class ProductController extends BaseController
         if ($product) {
             return $this->sendResponse('Berhasil ambil data produk', ['product' => $product]);
         } else {
-            return $this->sendError('Produk tidak ditemukan');
+            return $this->sendError('Gagal menampilkan data produk', ['error' => 'Produk tidak ditemukan']);
         }
     }
 
@@ -76,7 +77,7 @@ class ProductController extends BaseController
             'title' => ['required', 'string'],
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric'],
-            'discount' => ['numeric', 'max:100'],
+            'discount' => ['numeric', 'min:0', 'max:100'],
             'images' => ['array'],
             'images.*' => ['image', 'mimes:jpg,jpeg,png', 'max:1000'],
         ]);
@@ -88,22 +89,26 @@ class ProductController extends BaseController
         $validateData = $validator->valid();
         $product = Product::find($id);
 
-        if ($product->update($validateData)) {
-            if ($request->file('images')) {
-                $images = [];
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('images/products/', 'public');
-                    $images[] = ['product_id' => $product['id'], 'name' => basename($path), 'size' => $image->getSize()];
+        if ($product) {
+            if ($product->update($validateData)) {
+                if ($request->file('images')) {
+                    $images = [];
+                    foreach ($request->file('images') as $image) {
+                        $path = $image->store('images/products/', 'public');
+                        $images[] = ['product_id' => $product['id'], 'title' => $image->getClientOriginalName(), 'name' => basename($path), 'size' => $image->getSize()];
+                    }
+
+                    foreach ($images as $imageData) {
+                        $image = Image::create($imageData);
+                    }
                 }
 
-                foreach ($images as $imageData) {
-                    $image = Image::create($imageData);
-                }
-            }
-
-            $success['product'] = Product::find($id);
-            return $this->sendResponse('Berhasil ubah produk', $success);
-        };
+                $success['product'] = Product::find($id);
+                return $this->sendResponse('Berhasil ubah produk', $success);
+            };
+        } else {
+            return $this->sendError('Gagal menampilkan data produk', ['error' => 'Produk tidak ditemukan']);
+        }
         return $this->sendFail();
     }
 
@@ -123,7 +128,7 @@ class ProductController extends BaseController
             $product->delete();
             return $this->sendResponse('Berhasil hapus data produk', ['product' => $succes]);
         } else {
-            return $this->sendError('Produk tidak ditemukan');
+            return $this->sendError('Gagal menampilkan data produk', ['error' => 'Produk tidak ditemukan']);
         }
     }
 }

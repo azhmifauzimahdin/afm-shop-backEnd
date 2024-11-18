@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\BaseController;
 use App\Models\Image;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\File;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ImageController extends BaseController
 {
-
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -29,6 +29,7 @@ class ImageController extends BaseController
 
             $image = Image::create([
                 'product_id' => $validateData['product_id'],
+                'title' => $fileImage->getClientOriginalName(),
                 'name' => basename($path),
                 'size' => $fileImage->getSize()
             ]);
@@ -63,6 +64,7 @@ class ImageController extends BaseController
                     }
                 }
                 $image->update([
+                    'title' => $fileImage->getClientOriginalName(),
                     'name' => basename($path),
                     'size' => $fileImage->getSize()
                 ]);
@@ -70,7 +72,7 @@ class ImageController extends BaseController
                 return $this->sendFail();
             }
         } else {
-            return $this->sendError('Foto tidak ditemukan');
+            return $this->sendError('Gagal update foto', ['error' => 'Foto tidak ditemukan']);
         }
 
         $success['image'] = $image;
@@ -87,9 +89,9 @@ class ImageController extends BaseController
                 File::delete($file_path);
             }
             $image->delete();
-            return $this->sendResponse('Berhasil hapus data foto', ['image' => $succes]);
+            return $this->sendResponse('Berhasil hapus foto', ['image' => $succes]);
         } else {
-            return $this->sendError('Foto tidak ditemukan');
+            return $this->sendError('Gagal hapus foto', ['error' => 'Foto tidak ditemukan']);
         }
     }
 }

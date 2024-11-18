@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('review_images', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('review_id');
             $table->string('title');
-            $table->text('description');
-            $table->bigInteger('price');
-            $table->integer('discount')->default(0);
-            $table->bigInteger('sold')->default(0);
-            $table->bigInteger('stock')->default(0);
+            $table->string('name');
+            $table->bigInteger('size')->default(0);
             $table->timestamps();
+
+            $table->foreign('review_id')->references('id')->on('reviews')->onDelete('cascade');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('review_images');
     }
 };

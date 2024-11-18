@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        Schema::create('reviews', function (Blueprint $table) {
+            $table->uuid('id')->primary();;
+            $table->foreignUuid('user_id');
             $table->foreignUuid('product_id');
-            $table->string('title');
-            $table->string('name');
-            $table->bigInteger('size')->default(0);
+            $table->text('review');
+            $table->integer('rating');
             $table->timestamps();
 
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('images');
+        Schema::dropIfExists('reviews');
     }
 };

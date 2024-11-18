@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Number;
+use Psy\CodeCleaner\AssignThisVariablePass;
 
 class Product extends Model
 {
@@ -18,7 +19,7 @@ class Product extends Model
     protected $keyType = 'string';
     protected $guarded = ['id'];
     protected $with = ['images'];
-    protected $appends = ['price_now', 'format_price'];
+    protected $appends = ['price_now', 'format_price', 'rating'];
 
     protected $hidden = [
         'created_at',
@@ -28,6 +29,33 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(Image::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->orderBy('updated_at', 'desc');
+    }
+
+    public function rating(): Attribute
+    {
+        return Attribute::make(get: fn() => (object) [
+            'rate' => round($this->reviews()->average('rating'), 1),
+            'specific_rate' => [
+                $this->reviews()->where('rating', 5)->get()->count(),
+                $this->reviews()->where('rating', 4)->get()->count(),
+                $this->reviews()->where('rating', 3)->get()->count(),
+                $this->reviews()->where('rating', 2)->get()->count(),
+                $this->reviews()->where('rating', 1)->get()->count(),
+            ],
+            'percentage_rate' => [
+                $this->reviews()->get()->count() > 0 ? ($this->reviews()->where('rating', 5)->get()->count() / $this->reviews()->get()->count() * 100) : 0,
+                $this->reviews()->get()->count() > 0 ? ($this->reviews()->where('rating', 4)->get()->count() / $this->reviews()->get()->count() * 100) : 0,
+                $this->reviews()->get()->count() > 0 ? ($this->reviews()->where('rating', 3)->get()->count() / $this->reviews()->get()->count() * 100) : 0,
+                $this->reviews()->get()->count() > 0 ? ($this->reviews()->where('rating', 2)->get()->count() / $this->reviews()->get()->count() * 100) : 0,
+                $this->reviews()->get()->count() > 0 ? ($this->reviews()->where('rating', 1)->get()->count() / $this->reviews()->get()->count() * 100) : 0,
+            ],
+            'reviews' => $this->reviews()->get()
+        ]);
     }
 
     protected function formatPrice(): Attribute

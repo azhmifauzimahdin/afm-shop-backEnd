@@ -37,7 +37,10 @@ class User extends Authenticatable implements JWTSubject
         'gauth_id',
         'gauth_type',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'gender',
+        'birthday',
+        'image'
     ];
 
     /**

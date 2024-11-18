@@ -36,7 +36,7 @@ class BaseController extends Controller
     public function sendFail()
     {
         $response = [
-            'code' => 404,
+            'code' => 400,
             'success' => false,
             'message' => "Bad Request"
         ];

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Image extends Model
+class ReviewImage extends Model
 {
     use HasFactory, HasUuids;
 
@@ -18,22 +18,22 @@ class Image extends Model
     protected $appends = ['image_url'];
 
     protected $hidden = [
-        'product_id',
+        'review_id',
         'name',
         'created_at',
         'updated_at'
     ];
 
-    public function product(): BelongsTo
+    public function review(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Review::class);
     }
 
     protected function imageUrl(): Attribute
     {
         return Attribute::make(get: function () {
             if (!is_null($this->name)) {
-                return asset('storage/images/products/' . $this->name);
+                return asset('storage/images/reviews/' . $this->name);
             }
             return $this->name;
         });

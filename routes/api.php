@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ReviewImageController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\ProductController;
+use App\Models\Review;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group(function () {
@@ -31,6 +34,10 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('products/{id}', 'show')->name('products.show');
 });
 
+Route::controller(ReviewController::class)->group(function () {
+    Route::get('products/{id}/reviews', 'show')->name('review.show');
+});
+
 Route::middleware('auth:api')->group(function () {
     Route::controller(LoginController::class)->group(function () {
         Route::get('me', 'me')->name('me');
@@ -43,6 +50,17 @@ Route::middleware('auth:api')->group(function () {
         Route::put('user/resend-otp', 'resendOtp')->name('update.user.resendOtp');
         Route::put('user/verifikasi-otp', 'verifikasiOtp')->name('update.user.verifikasiOtp');
         Route::put('user/change-password', 'changePassword')->name('update.user.changePassword');
+    });
+
+    Route::controller(ReviewController::class)->group(function () {
+        Route::post('products/{id}/reviews', 'store')->name('review.store');
+        Route::put('products/reviews/{id}', 'update')->name('review.update');
+        Route::delete('products/reviews/{id}', 'destroy')->name('review.destroy');
+    });
+
+    Route::controller(ReviewImageController::class)->group(function () {
+        Route::post('products/reviews/{id}/images', 'store')->name('review.image.store');
+        Route::delete('products/reviews/images/{id}', 'destroy')->name('review.image.destroy');
     });
 });
 

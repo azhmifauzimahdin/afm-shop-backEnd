@@ -14,8 +14,7 @@ class LoginController extends BaseController
     public function login(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            // 'email' => ['email', 'email:dns'],
-            'email' => ['email'],
+            'email' => ['email', 'email:dns'],
             'password' => ['required']
         ]);
 

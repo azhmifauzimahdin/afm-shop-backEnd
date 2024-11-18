@@ -36,14 +36,14 @@ class LoginController extends BaseController
             'token' => $token,
             'type' => 'Bearer'
         ];
-        $success['user'] = $user;
+        $success['user'] = $user->makeVisible(['birthday', 'gender']);
 
         return $this->sendResponse('Berhasil login', $success);
     }
 
     public function me(): JsonResponse
     {
-        return $this->sendResponse('Berhasil mengambil data pengguna', ['user' => Auth::guard('api')->user()]);
+        return $this->sendResponse('Berhasil mengambil data pengguna', ['user' => Auth::guard('api')->user()->makeVisible(['birthday', 'gender'])]);
     }
 
     public function refresh(): JsonResponse

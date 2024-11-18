@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,9 +15,11 @@ class Admin extends Authenticatable implements JWTSubject
 
     protected $guard = "admin";
     protected $guarded = ["id"];
+    protected $appends = ['image_url'];
 
     protected $hidden = [
         'password',
+        'image',
         'remember_token',
         'created_at',
         'updated_at'
@@ -37,5 +40,15 @@ class Admin extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (!is_null($this->image)) {
+                return asset('storage/images/users/' . $this->image);
+            }
+            return $this->image;
+        });
     }
 }

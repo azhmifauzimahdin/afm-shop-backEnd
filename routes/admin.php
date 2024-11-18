@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\LoginController;
-use App\Http\Controllers\ImageController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('admin.')->prefix('admin')->group(function () {
@@ -14,6 +15,10 @@ Route::name('admin.')->prefix('admin')->group(function () {
         Route::controller(ProductController::class)->group(function () {
             Route::get('products', 'getAll')->name('products');
         });
+    });
+
+    Route::controller(AdminController::class)->middleware('auth:admin')->group(function () {
+        Route::put('change-password', 'changePassword')->name('changePassword');
     });
 });
 
