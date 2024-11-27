@@ -205,7 +205,8 @@ return [
         'product_id' => 'ID produk',
         'review' => 'Ulasan',
         'rating' => 'Rating',
-        'title' => 'Judul'
+        'title' => 'Judul',
+        'message' => 'Pesan'
     ],
 
 ];

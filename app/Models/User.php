@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -76,7 +77,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    protected function birthday(): Attribute
+    public function birthday(): Attribute
     {
         return Attribute::make(
             get: function ($value) {
@@ -88,13 +89,15 @@ class User extends Authenticatable implements JWTSubject
         );
     }
 
-    protected function imageUrl(): Attribute
+    public function imageUrl(): Attribute
     {
-        return Attribute::make(get: function () {
-            if (!is_null($this->image)) {
-                return asset('storage/images/users/' . $this->image);
+        return Attribute::make(
+            get: function () {
+                if (!is_null($this->image)) {
+                    return asset('storage/images/users/' . $this->image);
+                }
+                return asset('storage/images/users/default-user.png');
             }
-            return $this->image;
-        });
+        );
     }
 }

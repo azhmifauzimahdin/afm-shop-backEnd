@@ -53,7 +53,7 @@ class UserController extends BaseController
             return $this->sendError('User tidak ditemukan');
         }
 
-        $success['user'] = $user;
+        $success['user'] = $user->makeVisible(['birthday', 'gender']);;
         return $this->sendResponse('Berhasil ubah profil', $success);
     }
 
@@ -182,7 +182,7 @@ class UserController extends BaseController
             return $this->sendError('User tidak ditemukan', ["errors" => ["User tidak ditemukan"]]);
         }
 
-        $success['user'] = $user;
+        $success['user'] = $user->makeVisible(['birthday', 'gender']);;
         return $this->sendResponse('Berhasil ubah kata sandi', $success);
     }
 }

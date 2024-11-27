@@ -23,6 +23,12 @@ class DatabaseSeeder extends Seeder
             'password' => 'P@ssw0rd'
         ]);
 
+        User::create([
+            'name' => 'Pemrograman Mobile',
+            'email' => 'pemrogramanmobile11@gmail.com',
+            'password' => 'P@ssw0rd'
+        ]);
+
         Admin::create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',

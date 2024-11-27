@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,5 +34,14 @@ Route::middleware('auth:admin')->group(function () {
         Route::post('images', 'store')->name('images.store');
         Route::put('images/{id}', 'update')->name('images.update');
         Route::delete('images/{id}', 'destroy')->name('images.destroy');
+    });
+
+    Route::name('admin.')->prefix('admin')->group(function () {
+        Route::controller(MessageController::class)->group(function () {
+            Route::get('messages', 'show')->name('messages.show');
+            Route::get('messages/latest', 'newMessage')->name('messages.newMessage');
+            Route::post('messages/{admin_id}', 'store')->name('messages.store');
+            Route::put('messages/read/{user_id}', 'read')->name('messages.read');
+        });
     });
 });

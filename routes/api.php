@@ -3,11 +3,11 @@
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ReviewImageController;
 use App\Http\Controllers\Api\UserController;
-use App\Models\Review;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group(function () {
@@ -61,6 +61,13 @@ Route::middleware('auth:api')->group(function () {
     Route::controller(ReviewImageController::class)->group(function () {
         Route::post('products/reviews/{id}/images', 'store')->name('review.image.store');
         Route::delete('products/reviews/images/{id}', 'destroy')->name('review.image.destroy');
+    });
+
+    Route::controller(MessageController::class)->group(function () {
+        Route::get('messages', 'show')->name('messages.show');
+        Route::get('messages/latest', 'newMessage')->name('messages.newMessage');
+        Route::post('messages/{admin_id}', 'store')->name('messages.store');
+        Route::put('messages/read/{admin_id}', 'read')->name('messages.read');
     });
 });
 

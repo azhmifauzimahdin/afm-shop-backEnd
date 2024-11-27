@@ -40,7 +40,6 @@ class Review extends Model
     protected function date(): Attribute
     {
         return Attribute::make(
-
             get: fn() => $this->updated_at->diffForHumans()
         );
     }
