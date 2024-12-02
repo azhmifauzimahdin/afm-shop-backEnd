@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('chat_id');
             $table->text('message');
             $table->boolean('status')->default(0);
+            $table->timestamp('status_date')->nullable();
             $table->enum('sent_by', ['user', 'admin']);
             $table->timestamps();
 

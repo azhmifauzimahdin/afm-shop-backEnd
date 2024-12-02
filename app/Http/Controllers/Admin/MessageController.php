@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,7 +71,7 @@ class MessageController extends BaseController
         if ($message->get()->count() === 0) return $this->sendResponse('Gagal mengubah status baca', ['error' => 'Status pesan sudah terbaca semua']);
 
         $success['messages'] = $message->get()->makeHidden(['status']);
-        if ($message->update(['status' => 1])) {
+        if ($message->update(['status' => 1, 'status_date' => Carbon::now()])) {
             return $this->sendResponse('Berhasil mengubah status baca', $success);
         }
         return $this->sendFail();

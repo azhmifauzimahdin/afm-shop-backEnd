@@ -20,8 +20,7 @@ class Message extends Model
     protected $appends = ['date', 'time'];
 
     protected $hidden = [
-        'user_id',
-        'admin_id',
+        'chat_id',
         'update_at'
     ];
 
